@@ -168,7 +168,6 @@
   .p3 { transform: rotate(2.5deg); }
   .p4 { transform: rotate(-3deg); }
   
-  /* Bezpieczny efekt najechania */
   .polaroid:hover {
     box-shadow: 0 14px 34px rgba(0,0,0,.45), 0 0 0 3px rgba(233,217,163,.8);
     filter: brightness(1.05);
@@ -255,6 +254,7 @@
     position: fixed; inset: 0; z-index: 10;
     display: flex; align-items: center; justify-content: center;
     padding: 10px 10px 90px;
+    perspective: 1500px; /* KLUCZ DO ANIMACJI 3D NA TELEFONIE */
   }
   .strona-mobile {
     width: min(calc(100vw - 20px), calc(82vh * 0.75), 520px);
@@ -264,7 +264,30 @@
     box-shadow: 0 10px 40px rgba(0,0,0,.55);
     position: relative;
     overflow: hidden;
+    backface-visibility: hidden;
+    transition: transform 0.35s ease-in, opacity 0.35s ease-in;
   }
+  
+  /* Stany animacji telefonu */
+  .strona-mobile.flip-out-left {
+    transform: rotateY(-80deg) scale(0.9);
+    opacity: 0;
+  }
+  .strona-mobile.flip-out-right {
+    transform: rotateY(80deg) scale(0.9);
+    opacity: 0;
+  }
+  .strona-mobile.flip-in-right {
+    transform: rotateY(80deg) scale(0.9);
+    opacity: 0;
+    transition: none;
+  }
+  .strona-mobile.flip-in-left {
+    transform: rotateY(-80deg) scale(0.9);
+    opacity: 0;
+    transition: none;
+  }
+
   .strona-mobile .nr-strony {
     bottom: 3%;
     right: 6%;
@@ -672,7 +695,7 @@ function initDesktop(pages) {
 }
 
 /* ============================================================
-   MOBILE — jedna strona na ekran
+   MOBILE — jedna strona na ekran + animacja przewracania 3D
    ============================================================ */
 function initMobile(pages) {
   const mobilePages = pages.filter(p => p.typ !== 'pusta');
@@ -692,8 +715,9 @@ function initMobile(pages) {
   const btnWstecz = document.getElementById('wstecz');
   const btnDalej  = document.getElementById('dalej');
   let idx = 0;
+  let animuje = false;
 
-  function render() {
+  function renderContent() {
     const s = mobilePages[idx];
     const nr = s.pageNum ? `<span class="nr-strony">${s.pageNum}</span>` : '';
     stronaEl.innerHTML = htmlStrony(s) + nr;
@@ -701,30 +725,74 @@ function initMobile(pages) {
     podepnijZdjecia(stronaEl);
     requestAnimationFrame(dopasujWszystkiePolaroidy);
 
-    btnWstecz.disabled = idx <= 0;
-    btnDalej.disabled  = idx >= mobilePages.length - 1;
+    btnWstecz.disabled = idx <= 0 || animuje;
+    btnDalej.disabled  = idx >= mobilePages.length - 1 || animuje;
+  }
+
+  function zmienStrone(kier) {
+    if (animuje) return;
+    if (kier > 0 && idx >= mobilePages.length - 1) return;
+    if (kier < 0 && idx <= 0) return;
+
+    animuje = true;
+
+    // 1. Wypuszczamy obecną stronę
+    stronaEl.classList.add(kier > 0 ? 'flip-out-left' : 'flip-out-right');
+
+    setTimeout(() => {
+      // 2. Zmieniamy zawartość
+      idx += kier;
+      renderContent();
+
+      // 3. Przygotowujemy nową stronę do wjechania
+      stronaEl.classList.remove('flip-out-left', 'flip-out-right');
+      stronaEl.classList.add(kier > 0 ? 'flip-in-right' : 'flip-in-left');
+      
+      void stronaEl.offsetWidth; // Wymuszenie klatki
+
+      // 4. Wjeżdżamy na środek
+      stronaEl.classList.remove('flip-in-right', 'flip-in-left');
+      
+      animuje = false;
+      btnWstecz.disabled = idx <= 0;
+      btnDalej.disabled  = idx >= mobilePages.length - 1;
+    }, 350); // Czas dopasowany do CSS
   }
 
   stronaEl.addEventListener('click', (e) => {
     const s = mobilePages[idx];
-    if (s.typ === 'koniec') {
-      idx = 0;
-      render();
+    if (s.typ === 'koniec' && !animuje) {
+      // Animowane przejście na początek
+      animuje = true;
+      stronaEl.classList.add('flip-out-right');
+      setTimeout(() => {
+        idx = 0;
+        renderContent();
+        stronaEl.classList.remove('flip-out-right');
+        stronaEl.classList.add('flip-in-left');
+        void stronaEl.offsetWidth;
+        stronaEl.classList.remove('flip-in-left');
+        animuje = false;
+      }, 350);
     }
   });
 
-  btnDalej.onclick  = () => { if (idx < mobilePages.length - 1) { idx++; render(); } };
-  btnWstecz.onclick = () => { if (idx > 0) { idx--; render(); } };
+  btnDalej.onclick  = () => zmienStrone(1);
+  btnWstecz.onclick = () => zmienStrone(-1);
 
-  // Swipe
+  // Swipe (przesuwanie palcem)
   let startX = null;
-  stronaEl.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
+  stronaEl.addEventListener('touchstart', (e) => {
+    if (animuje) return;
+    startX = e.touches[0].clientX;
+  }, { passive: true });
+  
   stronaEl.addEventListener('touchend', (e) => {
     if (startX === null) return;
     const dx = e.changedTouches[0].clientX - startX;
-    if (Math.abs(dx) > 50) {
-      if (dx < 0 && idx < mobilePages.length - 1) { idx++; render(); }
-      if (dx > 0 && idx > 0) { idx--; render(); }
+    if (Math.abs(dx) > 40) { // Próg 40px
+      if (dx < 0) zmienStrone(1);  // Przesunięcie w lewo -> następna strona
+      if (dx > 0) zmienStrone(-1); // Przesunięcie w prawo -> poprzednia strona
     }
     startX = null;
   });
@@ -734,13 +802,13 @@ function initMobile(pages) {
       lightbox.classList.remove('active');
       setTimeout(() => { lightbox.hidden = true; }, 300);
     }
-    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); if (idx < mobilePages.length - 1) { idx++; render(); } }
-    if (e.key === 'ArrowLeft')                   { e.preventDefault(); if (idx > 0) { idx--; render(); } }
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); zmienStrone(1); }
+    if (e.key === 'ArrowLeft')                   { e.preventDefault(); zmienStrone(-1); }
   });
 
   window.addEventListener('resize', debounce(dopasujWszystkiePolaroidy, 150));
 
-  render();
+  renderContent();
 }
 
 /* ============================================================
@@ -772,7 +840,6 @@ function htmlStrony(s) {
     return `<div class="collage${extraClass}">${fotyHTML}</div>`;
   }
   if (s.typ === 'koniec') {
-    // KONIEC WYGLĄDA DOKŁADNIE JAK POCZĄTEK (okładka)
     return `<div class="okladka">
       <h1>KONIEC</h1>
       <p class="podtytul">DZIĘKUJEMY ZA OBEJRZENIE</p>
