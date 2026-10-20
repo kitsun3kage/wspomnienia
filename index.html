@@ -69,7 +69,7 @@
     background: linear-gradient(140deg, #2c3a68 0%, #1d2748 55%, #141b33 100%);
     color: #e9d9a3;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 10px; padding: 8%; position: relative;
+    gap: 12px; padding: 8%; position: relative;
     border-left: 10px solid #0f1528;
   }
   .okladka::before {
@@ -92,85 +92,43 @@
   }
   @keyframes puls { 0%,100%{opacity:.25} 50%{opacity:.75} }
 
-  /* TYLNA OKŁADKA / KONIEC */
-  .okladka-tyl-wewnatrz {
+  /* TYLNA OKŁADKA (KONIEC) */
+  .okladka-tyl {
     width: 100%; height: 100%;
     background: linear-gradient(140deg, #2c3a68 0%, #1d2748 55%, #141b33 100%);
     color: #e9d9a3;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 12px; padding: 10%; position: relative;
+    gap: 12px; padding: 8%; position: relative;
+    border-left: 10px solid #0f1528;
   }
-  .okladka-tyl-wewnatrz::before {
+  .okladka-tyl::before {
     content: ''; position: absolute; inset: 6%;
     border: 1px solid rgba(233,217,163,.45); border-radius: 2px; pointer-events: none;
   }
-  .okladka-tyl-wewnatrz h1 {
-    font-size: clamp(1.5rem, 4vw, 2.4rem);
-    letter-spacing: .15em; text-transform: uppercase;
-    text-align: center; font-weight: normal;
+  .okladka-tyl .banner {
+    width: 70px; height: 70px;
+    border: 1px solid rgba(233,217,163,.55);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: clamp(.9rem, 1.8vw, 1.3rem);
+    letter-spacing: .1em;
+    margin-bottom: 4px;
   }
-  .okladka-tyl-wewnatrz .podtytul { font-size: clamp(.7rem, 1.8vw, 1rem); letter-spacing: .25em; text-transform: uppercase; opacity: .8; }
-  .okladka-tyl-wewnatrz .klik {
-    font-size: clamp(.6rem, 1.4vw, .85rem);
-    letter-spacing: .2em; text-transform: uppercase;
-    opacity: .6; margin-top: 20px;
+  .okladka-tyl h1 {
+    font-size: clamp(1.6rem, 4.4vw, 3rem);
+    letter-spacing: .22em; text-transform: uppercase;
+    text-align: center; font-weight: normal; line-height: 1.2;
+  }
+  .okladka-tyl .linia { width: 40%; height: 1px; background: rgba(233,217,163,.5); margin: 4px 0; }
+  .okladka-tyl .podtytul { font-size: clamp(.6rem, 1.5vw, 1rem); letter-spacing: .3em; text-transform: uppercase; opacity: .85; }
+  .okladka-tyl .rok { font-size: clamp(.65rem, 1.6vw, 1.05rem); letter-spacing: .2em; opacity: .7; }
+  .okladka-tyl .klik {
+    position: absolute; bottom: 11%;
+    font-size: clamp(.5rem, 1.2vw, .78rem);
+    letter-spacing: .22em; text-transform: uppercase;
+    opacity: .55;
     animation: puls 2.4s ease-in-out infinite;
   }
-
-  /* ============ UKŁAD 4 ZDJĘĆ (KOLLAŻ) ============ */
-  .collage {
-    width: 100%; height: 100%;
-    padding: 8% 6%;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
-    gap: 4%;
-    align-items: center;
-    justify-items: center;
-    pointer-events: none;
-  }
-  .collage.n1 { grid-template-columns: 1fr; grid-template-rows: 1fr; padding: 12%; }
-  .collage.n2 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; padding: 12% 6%; }
-  .collage.n3 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
-  .collage.n3 .p3 { grid-column: 1 / -1; width: 50%; }
-
-  .polaroid {
-    position: relative;
-    background: #fff;
-    padding: 5% 5% 12% 5%;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-    width: 100%; height: 100%;
-    display: flex; flex-direction: column;
-    transition: transform 0.3s, z-index 0s;
-    cursor: zoom-in;
-    pointer-events: auto;
-  }
-  .polaroid img {
-    width: 100%; height: 100%;
-    object-fit: contain;
-    background: #f0f0f0;
-    pointer-events: auto;
-  }
-  .polaroid .nr-foto {
-    position: absolute;
-    bottom: 3%;
-    left: 0; width: 100%;
-    text-align: center;
-    font-size: clamp(0.6rem, 1.2vw, 0.9rem);
-    color: #666;
-    font-family: Georgia, serif;
-    pointer-events: none;
-  }
-
-  /* Rozrzucenie polaroidów */
-  .p1 { transform: rotate(-3deg) translate(2%, 3%); z-index: 1; }
-  .p2 { transform: rotate(4deg) translate(-2%, -2%); z-index: 2; }
-  .p3 { transform: rotate(-2deg) translate(3%, -3%); z-index: 3; }
-  .p4 { transform: rotate(3deg) translate(-3%, 2%); z-index: 4; }
-  
-  .polaroid:hover { transform: scale(1.05) rotate(0deg) !important; z-index: 10; }
-
-  .pusta { width: 100%; height: 100%; background: #fdfaf3; }
 
   /* KONIEC OVERLAY (desktop) */
   .koniec-overlay {
@@ -182,6 +140,79 @@
     overflow: hidden;
   }
   .koniec-overlay.aktywny { opacity: 1; pointer-events: auto; }
+  .koniec-overlay .okladka-tyl { border-radius: 6px; }
+
+  /* ============ KOLLAŻ 4 ZDJĘĆ ============ */
+  .collage {
+    width: 100%; height: 100%;
+    padding: 5% 5%;
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 3%;
+    pointer-events: none;
+  }
+  .collage.n1 { grid-template-columns: 1fr; grid-template-rows: 1fr; padding: 8% 12%; }
+  .collage.n2 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; padding: 10% 6%; }
+  .collage.n3 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+  .collage.n3 .slot:nth-child(3) {
+    grid-column: 1 / -1;
+    width: 50%;
+    justify-self: center;
+  }
+
+  .slot {
+    display: flex; align-items: center; justify-content: center;
+    min-width: 0; min-height: 0;
+    position: relative;
+    pointer-events: none;
+  }
+
+  .polaroid {
+    background: #fff;
+    padding: 6px 6px 24px 6px;
+    box-shadow: 0 8px 20px rgba(0,0,0,.32);
+    box-sizing: border-box;
+    position: relative;
+    /* fallback przed JS */
+    width: 100%; height: 100%;
+    transition: transform .35s ease, box-shadow .35s ease;
+    cursor: zoom-in;
+    pointer-events: auto;
+  }
+  .polaroid img {
+    display: block;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    pointer-events: auto;
+    -webkit-user-drag: none;
+    user-select: none;
+  }
+  .polaroid .nr-foto {
+    position: absolute;
+    bottom: 4px; left: 0; width: 100%;
+    text-align: center;
+    font-family: Georgia, serif;
+    font-size: clamp(.55rem, 1.1vw, .85rem);
+    color: #6a6354;
+    letter-spacing: .12em;
+    pointer-events: none;
+  }
+
+  /* Rozrzucenie */
+  .p1 { transform: rotate(-3.5deg); }
+  .p2 { transform: rotate(3deg); }
+  .p3 { transform: rotate(2.5deg); }
+  .p4 { transform: rotate(-3deg); }
+  
+  .polaroid:hover {
+    transform: scale(1.06) rotate(0deg) !important;
+    z-index: 20;
+    box-shadow: 0 14px 34px rgba(0,0,0,.42);
+  }
+
+  .pusta { width: 100%; height: 100%; background: #fdfaf3; }
 
   /* PRZYCISKI */
   .sterowanie {
@@ -211,7 +242,7 @@
     max-width: 95vw; max-height: 95vh; object-fit: contain;
     border: 4px solid #fff; border-radius: 4px;
     box-shadow: 0 10px 40px rgba(0,0,0,.5);
-    transform: scale(0.95); transition: transform .3s;
+    transform: scale(.95); transition: transform .3s;
   }
   .lightbox.active img { transform: scale(1); }
 
@@ -280,24 +311,23 @@
   }
   .strona-mobile .collage,
   .strona-mobile .okladka,
-  .strona-mobile .okladka-tyl-wewnatrz,
+  .strona-mobile .okladka-tyl,
   .strona-mobile .pusta {
     width: 100%; height: 100%;
   }
-  .strona-mobile .okladka { border-left-width: 8px; }
+  .strona-mobile .okladka,
+  .strona-mobile .okladka-tyl { border-left-width: 8px; }
 
   @media (max-width: 768px) {
     body { display: block; overflow: hidden; }
     .scena { display: none; }
     .nr-strony.prawa, .nr-strony.lewa { display: none; }
     
-    /* Poprawki kollażu na telefonie */
-    .collage { padding: 6% 4%; gap: 2%; }
-    .collage.n1 { padding: 8%; }
+    .collage { padding: 4% 4%; gap: 2%; }
+    .collage.n1 { padding: 6% 8%; }
     .collage.n2 { padding: 8% 4%; }
-    .collage.n3 .p3 { width: 60%; }
-    .polaroid { padding: 4% 4% 10% 4%; box-shadow: 0 4px 10px rgba(0,0,0,.3); }
-    .polaroid .nr-foto { bottom: 2%; font-size: .6rem; }
+    .polaroid { padding: 4px 4px 16px 4px; }
+    .polaroid .nr-foto { bottom: 2px; font-size: .55rem; }
   }
 </style>
 </head>
@@ -382,15 +412,57 @@ function otworzLightbox(src) {
   requestAnimationFrame(() => lightbox.classList.add('active'));
 }
 
+/* Podpięcie zdjęć + auto-sizing polaroidów */
 function podepnijZdjecia(root) {
   root.querySelectorAll('.collage img').forEach(img => {
     img.addEventListener('click', (e) => {
       e.stopPropagation();
       otworzLightbox(img.src);
     });
+    if (img.complete && img.naturalWidth) dopasujPolaroid(img);
+    else img.addEventListener('load', () => dopasujPolaroid(img));
   });
 }
 
+function dopasujPolaroid(img) {
+  const pol = img.closest('.polaroid');
+  if (!pol || !img.naturalWidth) return;
+  const slot = pol.parentElement;
+  if (!slot) return;
+
+  const slotW = slot.clientWidth;
+  const slotH = slot.clientHeight;
+  if (!slotW || !slotH) return;
+
+  const style = getComputedStyle(pol);
+  const padL = parseFloat(style.paddingLeft);
+  const padR = parseFloat(style.paddingRight);
+  const padT = parseFloat(style.paddingTop);
+  const padB = parseFloat(style.paddingBottom);
+  const padX = padL + padR;
+  const padY = padT + padB;
+
+  const ar = img.naturalWidth / img.naturalHeight;
+  const availW = slotW - padX - 10;
+  const availH = slotH - padY - 10;
+  if (availW <= 0 || availH <= 0) return;
+
+  let imgW = availW;
+  let imgH = imgW / ar;
+  if (imgH > availH) {
+    imgH = availH;
+    imgW = imgH * ar;
+  }
+
+  pol.style.width  = (imgW + padX) + 'px';
+  pol.style.height = (imgH + padY) + 'px';
+}
+
+function dopasujWszystkiePolaroidy() {
+  albumEl.querySelectorAll('.polaroid img').forEach(dopasujPolaroid);
+}
+
+/* Uruchomienie */
 if (sessionStorage.getItem('album-ok') === '1') {
   ekranHasla.hidden = true;
   start();
@@ -515,7 +587,7 @@ function uruchomAlbum(zdjecia) {
   ekranWyboru.hidden = true;
   albumEl.hidden = false;
 
-  // Pakujemy po 4 zdjęcia na stronę
+  // Po 4 zdjęcia na stronę
   const pages = [{ typ: 'okladka' }];
   for (let i = 0; i < zdjecia.length; i += 4) {
     const foty = [];
@@ -526,7 +598,7 @@ function uruchomAlbum(zdjecia) {
   }
   if (pages.length % 2 !== 0) pages.push({ typ: 'pusta' });
 
-  // Numeracja stron
+  // Numeracja stron (okładka i puste bez numeru)
   for (let i = 0; i < pages.length; i++) {
     if (i === 0 || pages[i].typ === 'pusta') pages[i].pageNum = null;
     else pages[i].pageNum = i;
@@ -575,7 +647,7 @@ function initDesktop(pages) {
     elementy.push(el);
   });
 
-  // Overlay "koniec"
+  // Overlay końcowy (tylna okładka)
   const overlay = document.createElement('div');
   overlay.className = 'koniec-overlay';
   overlay.innerHTML = htmlStrony({ typ: 'koniec' });
@@ -628,6 +700,10 @@ function initDesktop(pages) {
     if (e.key === 'ArrowLeft')                   { e.preventDefault(); przewroc(-1); }
   });
 
+  // Dopasuj po chwili (żeby sloty miały wymiary)
+  requestAnimationFrame(dopasujWszystkiePolaroidy);
+  window.addEventListener('resize', debounce(dopasujWszystkiePolaroidy, 150));
+
   odswiez();
 }
 
@@ -659,6 +735,7 @@ function initMobile(pages) {
     stronaEl.innerHTML = htmlStrony(s) + nr;
     stronaEl.style.cursor = (s.typ === 'koniec') ? 'pointer' : '';
     podepnijZdjecia(stronaEl);
+    requestAnimationFrame(dopasujWszystkiePolaroidy);
 
     btnWstecz.disabled = idx <= 0;
     btnDalej.disabled  = idx >= mobilePages.length - 1;
@@ -697,6 +774,8 @@ function initMobile(pages) {
     if (e.key === 'ArrowLeft')                   { e.preventDefault(); if (idx > 0) { idx--; render(); } }
   });
 
+  window.addEventListener('resize', debounce(dopasujWszystkiePolaroidy, 150));
+
   render();
 }
 
@@ -718,22 +797,36 @@ function htmlStrony(s) {
     const extraClass = count === 1 ? ' n1' : count === 2 ? ' n2' : count === 3 ? ' n3' : '';
     
     const fotyHTML = s.foty.map((f, i) => `
-      <div class="polaroid p${i + 1}">
-        <img src="${f.src}" alt="Zdjęcie ${f.nr}">
-        <span class="nr-foto">${f.nr}</span>
+      <div class="slot">
+        <div class="polaroid p${i + 1}">
+          <img src="${f.src}" alt="Zdjęcie ${f.nr}">
+          <span class="nr-foto">${f.nr}</span>
+        </div>
       </div>
     `).join('');
 
     return `<div class="collage${extraClass}">${fotyHTML}</div>`;
   }
   if (s.typ === 'koniec') {
-    return `<div class="okladka-tyl-wewnatrz">
+    return `<div class="okladka-tyl">
+      <div class="banner">8A</div>
       <h1>Koniec</h1>
+      <div class="linia"></div>
       <p class="podtytul">Dziękujemy za obejrzenie</p>
+      <p class="rok">${ROK}</p>
       <p class="klik">Kliknij, aby otworzyć od nowa</p>
     </div>`;
   }
   return `<div class="pusta"></div>`;
+}
+
+/* Narzędzia */
+function debounce(fn, ms) {
+  let t;
+  return function () {
+    clearTimeout(t);
+    t = setTimeout(() => fn.apply(this, arguments), ms);
+  };
 }
 </script>
 </body>
