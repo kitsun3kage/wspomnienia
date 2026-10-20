@@ -36,6 +36,7 @@
   }
   .arkusz.obrocony { transform: rotateY(-180deg); z-index: calc(var(--total) + var(--i) + 1); }
   .arkusz.animacja { z-index: 9999; }
+  
   .strona {
     position: absolute; inset: 0;
     backface-visibility: hidden; -webkit-backface-visibility: hidden;
@@ -48,6 +49,19 @@
   .strona::after { content: ''; position: absolute; top: 0; bottom: 0; width: 34px; pointer-events: none; }
   .przod::after { left: 0;  background: linear-gradient(to right, rgba(0,0,0,.18), transparent); }
   .tyl::after   { right: 0; background: linear-gradient(to left,  rgba(0,0,0,.18), transparent); }
+
+  /* ---------- NUMERACJA STRON ---------- */
+  .nr-strony {
+    position: absolute;
+    bottom: 4%;
+    font-size: clamp(.7rem, 1.3vw, 1rem);
+    color: #9a8f78;
+    font-family: Georgia, serif;
+    letter-spacing: .1em;
+    z-index: 10;
+  }
+  .nr-strony.prawa { right: 9%; }
+  .nr-strony.lewa  { left: 9%; }
 
   .okladka {
     width: 100%; height: 100%;
@@ -77,71 +91,42 @@
   }
   @keyframes puls { 0%,100%{opacity:.25} 50%{opacity:.75} }
 
-  /* ----- JEDNO zdjęcie na stronie (gdy ostatnie jest samotne) ----- */
-  .foto { width: 100%; height: 100%; padding: 7% 8%; display: grid; place-items: center; }
+  /* ---------- ZDJĘCIA ---------- */
+  .foto { width: 100%; height: 100%; padding: 6% 7%; display: grid; place-items: center; }
   .foto img {
     max-width: 100%; max-height: 100%; object-fit: contain;
     background: #fff; border: 10px solid #fff;
     box-shadow: 0 10px 26px rgba(0,0,0,.28);
+    cursor: zoom-in;
   }
 
-  /* ----- DWA zdjęcia na stronie ----- */
+  /* ---------- DWIE FOTKI ---------- */
   .foto-para {
     width: 100%; height: 100%;
     padding: 5% 6%;
     display: grid;
-    grid-template-rows: 1fr 1fr;   /* pion: dwa rzędy */
+    grid-template-rows: 1fr 1fr;
     gap: 3%;
   }
   .foto-para.poziom {
-    grid-template-rows: 1fr;       /* poziom: jedna kolumna szerokości */
+    grid-template-rows: 1fr;
     grid-template-columns: 1fr 1fr;
-    gap: 3% 4%;
+    gap: 4%;
   }
   .foto-cel {
     position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 0;
-    min-width: 0;
-    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    min-height: 0; min-width: 0; overflow: hidden;
   }
   .foto-cel img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-    background: #fff;
-    border: 8px solid #fff;
+    max-width: 100%; max-height: 100%; object-fit: contain;
+    background: #fff; border: 8px solid #fff;
     box-shadow: 0 8px 20px rgba(0,0,0,.22);
-    display: block;
-  }
-
-  /* numerek w rogu każdej fotki (2-foto układ) */
-  .foto-cel .nr {
-    position: absolute;
-    bottom: 6px;
-    right: 10px;
-    left: auto;
-    top: auto;
-    width: auto;
-    text-align: right;
-    font-size: clamp(.45rem, 1vw, .68rem);
-    letter-spacing: .2em;
-    color: #9a8f78;
-    background: rgba(253,250,243,.85);
-    padding: 2px 8px;
-    border-radius: 3px;
-  }
-
-  /* numerek pod samotnym zdjęciem (1-foto układ) */
-  .nr {
-    position: absolute; bottom: 3.5%; left: 0; right: 0; text-align: center;
-    font-size: clamp(.5rem, 1.2vw, .8rem);
-    letter-spacing: .22em; color: #9a8f78;
+    display: block; cursor: zoom-in;
   }
   .pusta { width: 100%; height: 100%; background: #fdfaf3; }
 
+  /* ---------- PRZYCISKI ---------- */
   .sterowanie {
     position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
     display: flex; gap: 14px; z-index: 100;
@@ -158,6 +143,21 @@
   .sterowanie button:active { transform: scale(.93); }
   .sterowanie button:disabled { opacity: .22; cursor: default; }
 
+  /* ---------- LIGHTBOX (POWIĘKSZANIE) ---------- */
+  .lightbox {
+    position: fixed; inset: 0; background: rgba(0,0,0,.92); z-index: 9999;
+    display: flex; align-items: center; justify-content: center;
+    cursor: zoom-out; opacity: 0; transition: opacity .3s; pointer-events: none;
+  }
+  .lightbox.active { opacity: 1; pointer-events: auto; }
+  .lightbox img {
+    max-width: 95vw; max-height: 95vh; object-fit: contain;
+    border: 4px solid #fff; border-radius: 4px; box-shadow: 0 10px 40px rgba(0,0,0,.5);
+    transform: scale(0.95); transition: transform .3s;
+  }
+  .lightbox.active img { transform: scale(1); }
+
+  /* ---------- EKRANY ---------- */
   .ekran { position: fixed; inset: 0; display: grid; place-items: center; padding: 20px; text-align: center; z-index: 500; }
   .ekran[hidden] { display: none; }
   .ekran-box { max-width: 540px; width: 100%; color: #e9d9a3; }
@@ -197,6 +197,33 @@
   .btn:hover { background: rgba(255,255,255,.14); }
   .btn + .btn { margin-left: 10px; }
   .btn:disabled { opacity: .4; cursor: default; }
+
+  /* ---------- MOBILE OPTYMALIZACJA ---------- */
+  @media (max-width: 768px) {
+    body {
+      display: block;
+      overflow: auto;
+      padding-top: 10px;
+      padding-bottom: 80px;
+    }
+    .scena {
+      perspective: 1200px;
+    }
+    .ksiazka {
+      width: 98vw;
+      height: 72vh;
+      aspect-ratio: auto;
+    }
+    .foto { padding: 4% 5%; }
+    .foto-para { padding: 4% 5%; gap: 2%; }
+    .foto-cel img { border-width: 4px; }
+    .okladka { border-left-width: 6px; }
+    .nr-strony { bottom: 3%; font-size: 0.8rem; }
+    .nr-strony.prawa { right: 8%; }
+    .nr-strony.lewa { left: 8%; }
+    .sterowanie { bottom: 15px; }
+    .sterowanie button { width: 44px; height: 44px; font-size: 22px; }
+  }
 </style>
 </head>
 <body>
@@ -242,6 +269,11 @@
   </div>
 </div>
 
+<!-- LIGHTBOX (POWIĘKSZANIE) -->
+<div id="lightbox" class="lightbox" hidden>
+  <img id="img-lightbox" src="" alt="Powiększone zdjęcie">
+</div>
+
 <script>
 /* ================================================================
    KONFIGURACJA
@@ -254,8 +286,7 @@ const KONFIG = {
   folder:     'zdjęcia',
 };
 
-// Liczba zdjęć na jednej kartce: 2
-// UKLAD: 'pion' (jedno pod drugim) lub 'poziom' (obok siebie)
+// 'pion' (jedno pod drugim) lub 'poziom' (obok siebie)
 const UKLAD = 'pion';
 
 const TYTUL    = 'Nasza Klasa';
@@ -441,7 +472,6 @@ function uruchomAlbum(zdjecia) {
   ekranWyboru.hidden = true;
   albumEl.hidden = false;
 
-  // Grupowanie zdjęć po 2 na stronę
   const strony = [{ typ: 'okladka' }];
   for (let i = 0; i < zdjecia.length; i += 2) {
     strony.push({
@@ -468,13 +498,42 @@ function uruchomAlbum(zdjecia) {
     el.className = 'arkusz';
     el.style.setProperty('--i', i);
     el.style.setProperty('--total', arkusze.length);
+
+    const nrPrzod = (i * 2) + 1;
+    const nrTyl = (i * 2) + 2;
+
+    const przodHTML = htmlStrony(ark.przod) +
+      (ark.przod.typ !== 'okladka' ? `<span class="nr-strony prawa">${nrPrzod}</span>` : '');
+    const tylHTML = htmlStrony(ark.tyl) +
+      (ark.tyl.typ !== 'okladka' ? `<span class="nr-strony lewa">${nrTyl}</span>` : '');
+
     el.innerHTML = `
-      <div class="strona przod">${htmlStrony(ark.przod)}</div>
-      <div class="strona tyl">${htmlStrony(ark.tyl)}</div>`;
+      <div class="strona przod">${przodHTML}</div>
+      <div class="strona tyl">${tylHTML}</div>`;
     ksiazka.appendChild(el);
     elementy.push(el);
   });
 
+  /* --- LIGHTBOX --- */
+  const lightbox = document.getElementById('lightbox');
+  const imgLightbox = document.getElementById('img-lightbox');
+
+  document.querySelectorAll('.foto img, .foto-cel img').forEach(img => {
+    img.style.cursor = 'zoom-in';
+    img.addEventListener('click', (e) => {
+      e.stopPropagation();
+      imgLightbox.src = img.src;
+      lightbox.hidden = false;
+      requestAnimationFrame(() => lightbox.classList.add('active'));
+    });
+  });
+
+  lightbox.addEventListener('click', () => {
+    lightbox.classList.remove('active');
+    setTimeout(() => { lightbox.hidden = true; }, 300);
+  });
+
+  /* --- PRZEWRACANIE --- */
   let aktualny = 0;
   const btnWstecz = document.getElementById('wstecz');
   const btnDalej  = document.getElementById('dalej');
@@ -503,7 +562,12 @@ function uruchomAlbum(zdjecia) {
   });
   btnDalej.onclick  = () => przewroc(1);
   btnWstecz.onclick = () => przewroc(-1);
+  
   document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      lightbox.classList.remove('active');
+      setTimeout(() => { lightbox.hidden = true; }, 300);
+    }
     if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); przewroc(1); }
     if (e.key === 'ArrowLeft')                   { e.preventDefault(); przewroc(-1); }
   });
@@ -522,21 +586,16 @@ function htmlStrony(s) {
     </div>`;
   }
   if (s.typ === 'foto') {
-    // Tylko jedno zdjęcie w parze → wyśrodkowane na całą stronę
     if (!s.b) {
-      return `<div class="foto"><img src="${s.a}" alt="Zdjęcie ${s.nrA}"></div>
-              <span class="nr">${s.nrA}</span>`;
+      return `<div class="foto"><img src="${s.a}" alt="Zdjęcie ${s.nrA}"></div>`;
     }
-    // Dwa zdjęcia → siatka
     const klasa = UKLAD === 'poziom' ? 'foto-para poziom' : 'foto-para';
     return `<div class="${klasa}">
       <div class="foto-cel">
         <img src="${s.a}" alt="Zdjęcie ${s.nrA}">
-        <span class="nr">${s.nrA}</span>
       </div>
       <div class="foto-cel">
         <img src="${s.b}" alt="Zdjęcie ${s.nrB}">
-        <span class="nr">${s.nrB}</span>
       </div>
     </div>`;
   }
