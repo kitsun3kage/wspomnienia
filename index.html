@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nasza Klasa — Album</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    display: grid; place-items: center; overflow: hidden;
+    background: radial-gradient(ellipse at 50% 15%, #3a4160 0%, #171a26 55%, #0a0c11 100%);
+    font-family: Georgia, 'Times New Roman', serif;
+    user-select: none; -webkit-tap-highlight-color: transparent;
+  }
+  .scena { perspective: 2600px; }
+  .ksiazka {
+    position: relative;
+    width: min(92vw, calc(72vh * 1.5), 1000px);
+    aspect-ratio: 3 / 2;
+    cursor: pointer;
+  }
+  .ksiazka::after {
+    content: ''; position: absolute;
+    left: 5%; right: 5%; bottom: -7%; height: 14%;
+    background: radial-gradient(ellipse at 50% 0%, rgba(0,0,0,.7), transparent 70%);
+    filter: blur(12px); z-index: -1; pointer-events: none;
+  }
+  .arkusz {
+    position: absolute; top: 0; right: 0; width: 50%; height: 100%;
+    transform-origin: left center; transform-style: preserve-3d;
+    transform: rotateY(0deg);
+    transition: transform .9s cubic-bezier(.42,.05,.25,1);
+    will-change: transform;
+    z-index: calc(var(--total) - var(--i));
+  }
+  .arkusz.obrocony { transform: rotateY(-180deg); z-index: calc(var(--total) + var(--i) + 1); }
+  .arkusz.animacja { z-index: 9999; }
+  .strona {
+    position: absolute; inset: 0;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    overflow: hidden; background: #fdfaf3;
+    display: flex; align-items: center; justify-content: center;
+    pointer-events: none;
+  }
+  .strona.przod { border-radius: 0 6px 6px 0; }
+  .strona.tyl   { transform: rotateY(180deg); border-radius: 6px 0 0 6px; }
+  .strona::after { content: ''; position: absolute; top: 0; bottom: 0; width: 34px; pointer-events: none; }
+  .przod::after { left: 0;  background: linear-gradient(to right, rgba(0,0,0,.18), transparent); }
+  .tyl::after   { right: 0; background: linear-gradient(to left,  rgba(0,0,0,.18), transparent); }
+
+  .okladka {
+    width: 100%; height: 100%;
+    background: linear-gradient(140deg, #2c3a68 0%, #1d2748 55%, #141b33 100%);
+    color: #e9d9a3;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 10px; padding: 8%; position: relative;
+    border-left: 10px solid #0f1528;
+  }
+  .okladka::before {
+    content: ''; position: absolute; inset: 6%;
+    border: 1px solid rgba(233,217,163,.45); border-radius: 2px; pointer-events: none;
+  }
+  .okladka h1 {
+    font-size: clamp(1.1rem, 3.4vw, 2.4rem);
+    letter-spacing: .14em; text-transform: uppercase;
+    text-align: center; font-weight: normal; line-height: 1.25;
+  }
+  .okladka .podtytul { font-size: clamp(.6rem, 1.5vw, 1rem); letter-spacing: .28em; text-transform: uppercase; opacity: .8; }
+  .okladka .linia    { width: 46%; height: 1px; background: rgba(233,217,163,.6); margin: 6px 0; }
+  .okladka .rok      { font-size: clamp(.65rem, 1.6vw, 1.05rem); letter-spacing: .2em; }
+  .okladka .hint {
+    position: absolute; bottom: 11%;
+    font-size: clamp(.5rem, 1.2vw, .78rem);
+    letter-spacing: .18em; opacity: .55; text-transform: uppercase;
+    animation: puls 2.4s ease-in-out infinite;
+  }
+  @keyframes puls { 0%,100%{opacity:.25} 50%{opacity:.75} }
+
+  .foto { width: 100%; height: 100%; padding: 7% 8%; display: grid; place-items: center; }
+  .foto img {
+    max-width: 100%; max-height: 100%; object-fit: contain;
+    background: #fff; border: 10px solid #fff;
+    box-shadow: 0 10px 26px rgba(0,0,0,.28);
+  }
+  .nr {
+    position: absolute; bottom: 3.5%; left: 0; right: 0; text-align: center;
+    font-size: clamp(.5rem, 1.2vw, .8rem);
+    letter-spacing: .22em; color: #9a8f78;
+  }
+  .pusta { width: 100%; height: 100%; background: #fdfaf3; }
+
+  .sterowanie {
+    position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 14px; z-index: 100;
+  }
+  .sterowanie button {
+    width: 52px; height: 52px; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,.18);
+    background: rgba(255,255,255,.06);
+    color: #e9d9a3; font-size: 26px; line-height: 1; cursor: pointer;
+    backdrop-filter: blur(6px); transition: background .2s, transform .15s;
+    font-family: Georgia, serif;
+  }
+  .sterowanie button:hover  { background: rgba(255,255,255,.16); }
+  .sterowanie button:active { transform: scale(.93); }
+  .sterowanie button:disabled { opacity: .22; cursor: default; }
+
+  .ekran { position: fixed; inset: 0; display: grid; place-items: center; padding: 20px; text-align: center; z-index: 500; }
+  .ekran[hidden] { display: none; }
+  .ekran-box { max-width: 540px; width: 100%; color: #e9d9a3; }
+  .ekran h2 { font-size: clamp(1.3rem, 3.5vw, 1.8rem); font-weight: normal; letter-spacing: .12em; margin-bottom: 12px; }
+  .ekran p  { opacity: .78; line-height: 1.55; font-size: .92rem; margin-bottom: 16px; }
+  .ekran code { background: rgba(255,255,255,.1); padding: 2px 6px; border-radius: 3px; font-size: .88em; }
+  .ekran .debug {
+    margin: 14px 0; padding: 12px; background: rgba(0,0,0,.3); border-radius: 6px;
+    font-family: 'Consolas', monospace; font-size: .76rem; text-align: left;
+    color: #c8b98a; line-height: 1.5; word-break: break-word; opacity: .9;
+    max-height: 220px; overflow: auto; white-space: pre-wrap;
+  }
+
+  .haslo-form { display: flex; flex-direction: column; gap: 12px; align-items: center; }
+  .haslo-input {
+    width: 100%; max-width: 320px;
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(233,217,163,.35);
+    color: #e9d9a3; padding: 14px 20px; border-radius: 999px;
+    font-family: inherit; font-size: 1.05rem; letter-spacing: .15em;
+    text-align: center; outline: none; transition: border-color .2s;
+  }
+  .haslo-input:focus { border-color: rgba(233,217,163,.75); }
+  .haslo-input.zle   { border-color: #d76a6a; animation: trzesienie .35s; }
+  @keyframes trzesienie {
+    0%,100% { transform: translateX(0); }
+    25%     { transform: translateX(-8px); }
+    75%     { transform: translateX(8px); }
+  }
+  .btn {
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(233,217,163,.35);
+    color: #e9d9a3; padding: 14px 30px; border-radius: 999px;
+    font-family: inherit; font-size: .95rem; letter-spacing: .08em;
+    cursor: pointer; transition: background .2s;
+  }
+  .btn:hover { background: rgba(255,255,255,.14); }
+  .btn + .btn { margin-left: 10px; }
+  .btn:disabled { opacity: .4; cursor: default; }
+</style>
+</head>
+<body>
+
+<!-- EKRAN HASŁA -->
+<div id="ekranHasla" class="ekran">
+  <div class="ekran-box">
+    <h2>Album klasy</h2>
+    <p>Wpisz hasło, aby otworzyć album.</p>
+    <form id="formHasla" class="haslo-form">
+      <input id="poleHasla" class="haslo-input" type="password"
+             autocomplete="off" autocapitalize="none" spellcheck="false"
+             placeholder="hasło" autofocus>
+      <button class="btn" type="submit">Otwórz</button>
+    </form>
+    <p id="bladHasla" style="margin-top:16px; color:#d76a6a; opacity:1; min-height:1.2em;"></p>
+  </div>
+</div>
+
+<!-- EKRAN ŁADOWANIA -->
+<div id="ekranLadowania" class="ekran" hidden>
+  <div class="ekran-box"><p>Ładowanie zdjęć…</p></div>
+</div>
+
+<!-- EKRAN BŁĘDU -->
+<div id="ekranWyboru" class="ekran" hidden>
+  <div class="ekran-box">
+    <h2>Nie udało się wczytać zdjęć</h2>
+    <p id="wybor-opis"></p>
+    <div id="wybor-debug" class="debug" hidden></div>
+    <button id="wybierzFolder" class="btn">Wybierz folder ręcznie</button>
+    <button id="sprobujPonownie" class="btn">Spróbuj ponownie</button>
+    <input type="file" id="plikFolder" webkitdirectory directory multiple accept="image/*" hidden>
+  </div>
+</div>
+
+<!-- ALBUM -->
+<div id="album" hidden>
+  <div class="scena"><div class="ksiazka" id="ksiazka"></div></div>
+  <div class="sterowanie">
+    <button id="wstecz" aria-label="Wstecz">‹</button>
+    <button id="dalej" aria-label="Dalej">›</button>
+  </div>
+</div>
+
+<script>
+/* ================================================================
+   KONFIGURACJA
+   ================================================================ */
+const HASLO = 'klasa8a';
+
+const KONFIG = {
+  uzytkownik: 'kitsun3kage',
+  repo:       'wspomnienia',          // puste = auto z URL. Jeśli nie działa: wpisz nazwę repo
+  folder:     'zdjęcia',   // nazwa folderu ze zdjęciami (dopasowanie elastyczne)
+};
+
+const TYTUL    = 'Nasza Klasa';
+const PODTYTUL = 'Album wspomnień';
+const ROK      = '2019 / 2027';
+/* ================================================================ */
+
+const ekranHasla     = document.getElementById('ekranHasla');
+const ekranLadowania = document.getElementById('ekranLadowania');
+const ekranWyboru    = document.getElementById('ekranWyboru');
+const albumEl        = document.getElementById('album');
+const formHasla      = document.getElementById('formHasla');
+const poleHasla      = document.getElementById('poleHasla');
+const bladHasla      = document.getElementById('bladHasla');
+
+if (sessionStorage.getItem('album-ok') === '1') {
+  ekranHasla.hidden = true;
+  start();
+}
+
+formHasla.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const wpisane = poleHasla.value.trim().toLowerCase();
+  if (wpisane === HASLO.toLowerCase()) {
+    sessionStorage.setItem('album-ok', '1');
+    ekranHasla.hidden = true;
+    start();
+  } else {
+    poleHasla.classList.remove('zle');
+    void poleHasla.offsetWidth;
+    poleHasla.classList.add('zle');
+    bladHasla.textContent = 'Nieprawidłowe hasło.';
+    poleHasla.select();
+  }
+});
+
+/* ---------- START ---------- */
+async function start() {
+  ekranLadowania.hidden = false;
+  const wynik = await pobierzListeZdjec();
+  ekranLadowania.hidden = true;
+
+  if (wynik.zdjecia && wynik.zdjecia.length > 0) {
+    uruchomAlbum(wynik.zdjecia);
+  } else {
+    pokazWybor(wynik.debug);
+  }
+}
+
+/* ---------- KANDYDACI REPO ---------- */
+function kandydaciRepo() {
+  if (KONFIG.uzytkownik && KONFIG.repo) {
+    return [{ user: KONFIG.uzytkownik, repo: KONFIG.repo }];
+  }
+  const wynik = [];
+  const host = location.hostname;
+  if (host.endsWith('.github.io')) {
+    const user = host.replace(/\.github\.io$/, '');
+    const segs = location.pathname.split('/').filter(Boolean);
+    if (segs.length > 0 && !segs[0].includes('.')) {
+      wynik.push({ user, repo: segs[0] });
+    }
+    wynik.push({ user, repo: `${user}.github.io` });
+  }
+  if (wynik.length === 0 && KONFIG.uzytkownik) {
+    wynik.push({ user: KONFIG.uzytkownik, repo: null });
+  }
+  return wynik;
+}
+
+/* ---------- POBIERANIE (GitHub Tree API + relatywne URL-e) ---------- */
+async function pobierzListeZdjec() {
+  const kandydaci = kandydaciRepo();
+  const debug = [];
+
+  if (kandydaci.length === 0) {
+    debug.push('Nie wykryto repo (host nie jest github.io i KONFIG.repo jest puste).');
+    return { zdjecia: null, debug: debug.join('\n') };
+  }
+
+  for (const k of kandydaci) {
+    if (!k.repo) {
+      debug.push(`Brak nazwy repo. Uzupełnij KONFIG.repo (użytkownik: ${k.user}).`);
+      continue;
+    }
+    const res = await pobierzZRepo(k.user, k.repo, debug);
+    if (res && res.length > 0) return { zdjecia: res, debug: debug.join('\n') };
+  }
+  return { zdjecia: null, debug: debug.join('\n') };
+}
+
+async function pobierzZRepo(user, repo, debug) {
+  const api = `https://api.github.com/repos/${user}/${repo}/git/trees/HEAD?recursive=1`;
+  debug.push(`GET ${api}`);
+
+  let resp;
+  try {
+    resp = await fetch(api, { headers: { Accept: 'application/vnd.github+json' } });
+  } catch (e) {
+    debug.push(`  błąd sieci: ${e.message}`);
+    return null;
+  }
+
+  if (!resp.ok) {
+    const uwaga = resp.status === 404 ? ' — repo prywatne lub nie istnieje'
+               : resp.status === 403 ? ' — limit GitHub API'
+               : '';
+    debug.push(`  HTTP ${resp.status}${uwaga}`);
+    return null;
+  }
+
+  let data;
+  try { data = await resp.json(); } catch (e) { debug.push('  błąd parsowania JSON'); return null; }
+  if (!data.tree) { debug.push('  brak pola "tree"'); return null; }
+
+  const wzorFoto = /\.(jpe?g|png|gif|webp|avif|bmp)$/i;
+  let wszystkie = data.tree.filter(it => it.type === 'blob' && wzorFoto.test(it.path));
+  wszystkie = wszystkie.filter(it => !/(^|\/)\./.test(it.path));
+  debug.push(`  w całym repo: ${wszystkie.length} zdjęć`);
+
+  // elastyczne dopasowanie folderu (ignoruje polskie znaki i wielkość liter)
+  let pliki = wszystkie;
+  const folder = (KONFIG.folder || '').replace(/^\/+|\/+$/g, '');
+  if (folder && wszystkie.length > 0) {
+    const norm = s => s.toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/ł/g, 'l');
+    const fNorm = norm(folder);
+    const wFolderze = wszystkie.filter(it => {
+      const segs = it.path.split('/');
+      return segs.length > 1 && norm(segs[0]) === fNorm;
+    });
+    if (wFolderze.length > 0) {
+      pliki = wFolderze;
+      debug.push(`  w folderze "${folder}": ${wFolderze.length}`);
+    } else {
+      debug.push(`  folder "${folder}" nie pasuje — biorę wszystkie zdjęcia z repo`);
+    }
+  }
+
+  pliki.sort((a, b) => a.path.localeCompare(b.path, undefined, { numeric: true }));
+
+  // URL-e relatywne do index.html (GitHub Pages sam serwuje pliki)
+  const base = new URL('./', location.href).href;
+  const zdjecia = pliki.map(it => base + it.path.split('/').map(encodeURIComponent).join('/'));
+  debug.push(`  OK — ${zdjecia.length} zdjęć`);
+  return zdjecia;
+}
+
+/* ---------- EKRAN BŁĘDU ---------- */
+function pokazWybor(debug) {
+  ekranLadowania.hidden = true;
+  ekranWyboru.hidden = false;
+
+  const opis = document.getElementById('wybor-opis');
+  const debugBox = document.getElementById('wybor-debug');
+  if (debug) { debugBox.hidden = false; debugBox.textContent = debug; }
+  else { debugBox.hidden = true; }
+
+  opis.innerHTML =
+    'Sprawdź: <br>• repozytorium jest <b>publiczne</b><br>' +
+    '• w <b>Settings → Pages</b> włączony GitHub Pages<br>' +
+    '• folder <code>' + (KONFIG.folder || '(dowolny)') + '</code> istnieje i ma zdjęcia .jpg/.png/.webp<br>' +
+    '• strona otwarta z <code>*.github.io</code>';
+
+  const input = document.getElementById('plikFolder');
+  document.getElementById('wybierzFolder').onclick  = () => input.click();
+  document.getElementById('sprobujPonownie').onclick = () => {
+    Object.keys(localStorage).filter(k => k.startsWith('album')).forEach(k => localStorage.removeItem(k));
+    location.reload();
+  };
+
+  input.onchange = () => {
+    const pliki = [...input.files].filter(f => /^image\//.test(f.type));
+    if (pliki.length === 0) { alert('Nie znaleziono zdjęć w wybranym folderze.'); return; }
+    pliki.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+    ekranWyboru.hidden = true;
+    uruchomAlbum(pliki.map(f => URL.createObjectURL(f)));
+  };
+}
+
+/* ---------- BUDOWA ALBUMU ---------- */
+function uruchomAlbum(zdjecia) {
+  ekranLadowania.hidden = true;
+  ekranWyboru.hidden = true;
+  albumEl.hidden = false;
+
+  const strony = [{ typ: 'okladka' }];
+  zdjecia.forEach((src, i) => strony.push({ typ: 'foto', src, nr: i + 1 }));
+  if (strony.length % 2 !== 0) strony.push({ typ: 'pusta' });
+
+  const arkusze = [];
+  for (let i = 0; i < strony.length; i += 2) {
+    arkusze.push({ przod: strony[i], tyl: strony[i + 1] });
+  }
+
+  const ksiazka = document.getElementById('ksiazka');
+  ksiazka.innerHTML = '';
+  const elementy = [];
+
+  arkusze.forEach((ark, i) => {
+    const el = document.createElement('div');
+    el.className = 'arkusz';
+    el.style.setProperty('--i', i);
+    el.style.setProperty('--total', arkusze.length);
+    el.innerHTML = `
+      <div class="strona przod">${htmlStrony(ark.przod)}</div>
+      <div class="strona tyl">${htmlStrony(ark.tyl)}</div>`;
+    ksiazka.appendChild(el);
+    elementy.push(el);
+  });
+
+  let aktualny = 0;
+  const btnWstecz = document.getElementById('wstecz');
+  const btnDalej  = document.getElementById('dalej');
+
+  function odswiez() {
+    elementy.forEach((el, i) => el.classList.toggle('obrocony', i < aktualny));
+    btnWstecz.disabled = aktualny <= 0;
+    btnDalej.disabled  = aktualny >= elementy.length;
+  }
+
+  function przewroc(kier) {
+    if (kier > 0 && aktualny >= elementy.length) return;
+    if (kier < 0 && aktualny <= 0) return;
+    const idx = kier > 0 ? aktualny : aktualny - 1;
+    const el  = elementy[idx];
+    el.classList.add('animacja');
+    void el.offsetWidth;
+    aktualny += kier;
+    odswiez();
+    setTimeout(() => el.classList.remove('animacja'), 950);
+  }
+
+  ksiazka.addEventListener('click', (e) => {
+    const r = ksiazka.getBoundingClientRect();
+    przewroc((e.clientX - r.left) > r.width / 2 ? 1 : -1);
+  });
+  btnDalej.onclick  = () => przewroc(1);
+  btnWstecz.onclick = () => przewroc(-1);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); przewroc(1); }
+    if (e.key === 'ArrowLeft')                   { e.preventDefault(); przewroc(-1); }
+  });
+
+  odswiez();
+}
+
+function htmlStrony(s) {
+  if (s.typ === 'okladka') {
+    return `<div class="okladka">
+      <h1>${TYTUL}</h1>
+      <p class="podtytul">${PODTYTUL}</p>
+      <div class="linia"></div>
+      <p class="rok">${ROK}</p>
+      <p class="hint">Kliknij, aby otworzyć</p>
+    </div>`;
+  }
+  if (s.typ === 'foto') {
+    return `<div class="foto"><img src="${s.src}" alt="Zdjęcie ${s.nr}"></div>
+            <span class="nr">${s.nr}</span>`;
+  }
+  return `<div class="pusta"></div>`;
+}
+</script>
+</body>
+</html>
