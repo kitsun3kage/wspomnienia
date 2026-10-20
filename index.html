@@ -63,7 +63,7 @@
   .nr-strony.prawa { right: 9%; }
   .nr-strony.lewa  { left: 9%; }
 
-  /* OKŁADKA PRZÓD */
+  /* OKŁADKA (PRZÓD I TYŁ) */
   .okladka {
     width: 100%; height: 100%;
     background: linear-gradient(140deg, #2c3a68 0%, #1d2748 55%, #141b33 100%);
@@ -81,7 +81,7 @@
     letter-spacing: .14em; text-transform: uppercase;
     text-align: center; font-weight: normal; line-height: 1.25;
   }
-  .okladka .podtytul { font-size: clamp(.6rem, 1.5vw, 1rem); letter-spacing: .28em; text-transform: uppercase; opacity: .8; }
+  .okladka .podtytul { font-size: clamp(.6rem, 1.5vw, 1rem); letter-spacing: .28em; text-transform: uppercase; opacity: .8; text-align: center; }
   .okladka .linia    { width: 46%; height: 1px; background: rgba(233,217,163,.6); margin: 6px 0; }
   .okladka .rok      { font-size: clamp(.65rem, 1.6vw, 1.05rem); letter-spacing: .2em; }
   .okladka .hint {
@@ -91,44 +91,6 @@
     animation: puls 2.4s ease-in-out infinite;
   }
   @keyframes puls { 0%,100%{opacity:.25} 50%{opacity:.75} }
-
-  /* TYLNA OKŁADKA (KONIEC) */
-  .okladka-tyl {
-    width: 100%; height: 100%;
-    background: linear-gradient(140deg, #2c3a68 0%, #1d2748 55%, #141b33 100%);
-    color: #e9d9a3;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 12px; padding: 8%; position: relative;
-    border-left: 10px solid #0f1528;
-  }
-  .okladka-tyl::before {
-    content: ''; position: absolute; inset: 6%;
-    border: 1px solid rgba(233,217,163,.45); border-radius: 2px; pointer-events: none;
-  }
-  .okladka-tyl .banner {
-    width: 70px; height: 70px;
-    border: 1px solid rgba(233,217,163,.55);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: clamp(.9rem, 1.8vw, 1.3rem);
-    letter-spacing: .1em;
-    margin-bottom: 4px;
-  }
-  .okladka-tyl h1 {
-    font-size: clamp(1.6rem, 4.4vw, 3rem);
-    letter-spacing: .22em; text-transform: uppercase;
-    text-align: center; font-weight: normal; line-height: 1.2;
-  }
-  .okladka-tyl .linia { width: 40%; height: 1px; background: rgba(233,217,163,.5); margin: 4px 0; }
-  .okladka-tyl .podtytul { font-size: clamp(.6rem, 1.5vw, 1rem); letter-spacing: .3em; text-transform: uppercase; opacity: .85; }
-  .okladka-tyl .rok { font-size: clamp(.65rem, 1.6vw, 1.05rem); letter-spacing: .2em; opacity: .7; }
-  .okladka-tyl .klik {
-    position: absolute; bottom: 11%;
-    font-size: clamp(.5rem, 1.2vw, .78rem);
-    letter-spacing: .22em; text-transform: uppercase;
-    opacity: .55;
-    animation: puls 2.4s ease-in-out infinite;
-  }
 
   /* KONIEC OVERLAY (desktop) */
   .koniec-overlay {
@@ -140,7 +102,7 @@
     overflow: hidden;
   }
   .koniec-overlay.aktywny { opacity: 1; pointer-events: auto; }
-  .koniec-overlay .okladka-tyl { border-radius: 6px; }
+  .koniec-overlay .okladka { border-radius: 6px; }
 
   /* ============ KOLLAŻ 4 ZDJĘĆ ============ */
   .collage {
@@ -179,13 +141,13 @@
     transition: box-shadow .3s ease, filter .3s ease;
     cursor: zoom-in;
     pointer-events: auto;
-    backface-visibility: hidden; /* Zapobiega glitchom 3D na lewej stronie */
+    backface-visibility: hidden;
   }
   .polaroid img {
     display: block;
     width: 100%; height: 100%;
     object-fit: cover;
-    pointer-events: none; /* Kliknięcie przechodzi do polaroidu */
+    pointer-events: none;
     -webkit-user-drag: none;
     user-select: none;
   }
@@ -206,7 +168,7 @@
   .p3 { transform: rotate(2.5deg); }
   .p4 { transform: rotate(-3deg); }
   
-  /* Bezpieczny efekt najechania (bez psucia animacji 3D) */
+  /* Bezpieczny efekt najechania */
   .polaroid:hover {
     box-shadow: 0 14px 34px rgba(0,0,0,.45), 0 0 0 3px rgba(233,217,163,.8);
     filter: brightness(1.05);
@@ -312,12 +274,10 @@
   }
   .strona-mobile .collage,
   .strona-mobile .okladka,
-  .strona-mobile .okladka-tyl,
   .strona-mobile .pusta {
     width: 100%; height: 100%;
   }
-  .strona-mobile .okladka,
-  .strona-mobile .okladka-tyl { border-left-width: 8px; }
+  .strona-mobile .okladka { border-left-width: 8px; }
 
   @media (max-width: 768px) {
     body { display: block; overflow: hidden; }
@@ -419,9 +379,8 @@ function podepnijZdjecia(root) {
     const img = pol.querySelector('img');
     if (!img) return;
     
-    // Kliknięcie w cały polaroid (nie tylko samo zdjęcie)
     pol.addEventListener('click', (e) => {
-      e.stopPropagation(); // Zapobiega przewróceniu strony
+      e.stopPropagation();
       otworzLightbox(img.src);
     });
 
@@ -813,13 +772,13 @@ function htmlStrony(s) {
     return `<div class="collage${extraClass}">${fotyHTML}</div>`;
   }
   if (s.typ === 'koniec') {
-    return `<div class="okladka-tyl">
-      <div class="banner">8A</div>
-      <h1>Koniec</h1>
+    // KONIEC WYGLĄDA DOKŁADNIE JAK POCZĄTEK (okładka)
+    return `<div class="okladka">
+      <h1>KONIEC</h1>
+      <p class="podtytul">DZIĘKUJEMY ZA OBEJRZENIE</p>
       <div class="linia"></div>
-      <p class="podtytul">Dziękujemy za obejrzenie</p>
       <p class="rok">${ROK}</p>
-      <p class="klik">Kliknij, aby otworzyć od nowa</p>
+      <p class="hint">Kliknij, aby otworzyć od nowa</p>
     </div>`;
   }
   return `<div class="pusta"></div>`;
