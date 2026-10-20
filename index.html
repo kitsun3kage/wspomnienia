@@ -175,17 +175,17 @@
     box-shadow: 0 8px 20px rgba(0,0,0,.32);
     box-sizing: border-box;
     position: relative;
-    /* fallback przed JS */
     width: 100%; height: 100%;
-    transition: transform .35s ease, box-shadow .35s ease;
+    transition: box-shadow .3s ease, filter .3s ease;
     cursor: zoom-in;
     pointer-events: auto;
+    backface-visibility: hidden; /* Zapobiega glitchom 3D na lewej stronie */
   }
   .polaroid img {
     display: block;
     width: 100%; height: 100%;
     object-fit: cover;
-    pointer-events: auto;
+    pointer-events: none; /* Kliknięcie przechodzi do polaroidu */
     -webkit-user-drag: none;
     user-select: none;
   }
@@ -206,10 +206,11 @@
   .p3 { transform: rotate(2.5deg); }
   .p4 { transform: rotate(-3deg); }
   
+  /* Bezpieczny efekt najechania (bez psucia animacji 3D) */
   .polaroid:hover {
-    transform: scale(1.06) rotate(0deg) !important;
+    box-shadow: 0 14px 34px rgba(0,0,0,.45), 0 0 0 3px rgba(233,217,163,.8);
+    filter: brightness(1.05);
     z-index: 20;
-    box-shadow: 0 14px 34px rgba(0,0,0,.42);
   }
 
   .pusta { width: 100%; height: 100%; background: #fdfaf3; }
@@ -414,11 +415,16 @@ function otworzLightbox(src) {
 
 /* Podpięcie zdjęć + auto-sizing polaroidów */
 function podepnijZdjecia(root) {
-  root.querySelectorAll('.collage img').forEach(img => {
-    img.addEventListener('click', (e) => {
-      e.stopPropagation();
+  root.querySelectorAll('.polaroid').forEach(pol => {
+    const img = pol.querySelector('img');
+    if (!img) return;
+    
+    // Kliknięcie w cały polaroid (nie tylko samo zdjęcie)
+    pol.addEventListener('click', (e) => {
+      e.stopPropagation(); // Zapobiega przewróceniu strony
       otworzLightbox(img.src);
     });
+
     if (img.complete && img.naturalWidth) dopasujPolaroid(img);
     else img.addEventListener('load', () => dopasujPolaroid(img));
   });
@@ -700,7 +706,6 @@ function initDesktop(pages) {
     if (e.key === 'ArrowLeft')                   { e.preventDefault(); przewroc(-1); }
   });
 
-  // Dopasuj po chwili (żeby sloty miały wymiary)
   requestAnimationFrame(dopasujWszystkiePolaroidy);
   window.addEventListener('resize', debounce(dopasujWszystkiePolaroidy, 150));
 
