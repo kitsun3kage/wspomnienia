@@ -50,7 +50,7 @@
   .przod::after { left: 0;  background: linear-gradient(to right, rgba(0,0,0,.18), transparent); }
   .tyl::after   { right: 0; background: linear-gradient(to left,  rgba(0,0,0,.18), transparent); }
 
-  /* ---------- NUMERACJA STRON ---------- */
+  /* NUMERACJA */
   .nr-strony {
     position: absolute;
     bottom: 4%;
@@ -63,6 +63,7 @@
   .nr-strony.prawa { right: 9%; }
   .nr-strony.lewa  { left: 9%; }
 
+  /* OKŁADKA PRZÓD */
   .okladka {
     width: 100%; height: 100%;
     background: linear-gradient(140deg, #2c3a68 0%, #1d2748 55%, #141b33 100%);
@@ -91,42 +92,98 @@
   }
   @keyframes puls { 0%,100%{opacity:.25} 50%{opacity:.75} }
 
-  /* ---------- ZDJĘCIA ---------- */
-  .foto { width: 100%; height: 100%; padding: 6% 7%; display: grid; place-items: center; }
-  .foto img {
-    max-width: 100%; max-height: 100%; object-fit: contain;
-    background: #fff; border: 10px solid #fff;
-    box-shadow: 0 10px 26px rgba(0,0,0,.28);
-    cursor: zoom-in;
+  /* TYLNA OKŁADKA / KONIEC */
+  .okladka-tyl-wewnatrz {
+    width: 100%; height: 100%;
+    background: linear-gradient(140deg, #2c3a68 0%, #1d2748 55%, #141b33 100%);
+    color: #e9d9a3;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 12px; padding: 10%; position: relative;
+  }
+  .okladka-tyl-wewnatrz::before {
+    content: ''; position: absolute; inset: 6%;
+    border: 1px solid rgba(233,217,163,.45); border-radius: 2px; pointer-events: none;
+  }
+  .okladka-tyl-wewnatrz h1 {
+    font-size: clamp(1.5rem, 4vw, 2.4rem);
+    letter-spacing: .15em; text-transform: uppercase;
+    text-align: center; font-weight: normal;
+  }
+  .okladka-tyl-wewnatrz .podtytul { font-size: clamp(.7rem, 1.8vw, 1rem); letter-spacing: .25em; text-transform: uppercase; opacity: .8; }
+  .okladka-tyl-wewnatrz .klik {
+    font-size: clamp(.6rem, 1.4vw, .85rem);
+    letter-spacing: .2em; text-transform: uppercase;
+    opacity: .6; margin-top: 20px;
+    animation: puls 2.4s ease-in-out infinite;
   }
 
-  /* ---------- DWIE FOTKI ---------- */
-  .foto-para {
+  /* ============ UKŁAD 4 ZDJĘĆ (KOLLAŻ) ============ */
+  .collage {
     width: 100%; height: 100%;
-    padding: 5% 6%;
+    padding: 8% 6%;
     display: grid;
-    grid-template-rows: 1fr 1fr;
-    gap: 3%;
-  }
-  .foto-para.poziom {
-    grid-template-rows: 1fr;
     grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
     gap: 4%;
+    align-items: center;
+    justify-items: center;
+    pointer-events: none;
   }
-  .foto-cel {
+  .collage.n1 { grid-template-columns: 1fr; grid-template-rows: 1fr; padding: 12%; }
+  .collage.n2 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; padding: 12% 6%; }
+  .collage.n3 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+  .collage.n3 .p3 { grid-column: 1 / -1; width: 50%; }
+
+  .polaroid {
     position: relative;
-    display: flex; align-items: center; justify-content: center;
-    min-height: 0; min-width: 0; overflow: hidden;
+    background: #fff;
+    padding: 5% 5% 12% 5%;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    transition: transform 0.3s, z-index 0s;
+    cursor: zoom-in;
+    pointer-events: auto;
   }
-  .foto-cel img {
-    max-width: 100%; max-height: 100%; object-fit: contain;
-    background: #fff; border: 8px solid #fff;
-    box-shadow: 0 8px 20px rgba(0,0,0,.22);
-    display: block; cursor: zoom-in;
+  .polaroid img {
+    width: 100%; height: 100%;
+    object-fit: contain;
+    background: #f0f0f0;
+    pointer-events: auto;
   }
+  .polaroid .nr-foto {
+    position: absolute;
+    bottom: 3%;
+    left: 0; width: 100%;
+    text-align: center;
+    font-size: clamp(0.6rem, 1.2vw, 0.9rem);
+    color: #666;
+    font-family: Georgia, serif;
+    pointer-events: none;
+  }
+
+  /* Rozrzucenie polaroidów */
+  .p1 { transform: rotate(-3deg) translate(2%, 3%); z-index: 1; }
+  .p2 { transform: rotate(4deg) translate(-2%, -2%); z-index: 2; }
+  .p3 { transform: rotate(-2deg) translate(3%, -3%); z-index: 3; }
+  .p4 { transform: rotate(3deg) translate(-3%, 2%); z-index: 4; }
+  
+  .polaroid:hover { transform: scale(1.05) rotate(0deg) !important; z-index: 10; }
+
   .pusta { width: 100%; height: 100%; background: #fdfaf3; }
 
-  /* ---------- PRZYCISKI ---------- */
+  /* KONIEC OVERLAY (desktop) */
+  .koniec-overlay {
+    position: absolute; inset: 0; z-index: 10000;
+    opacity: 0; pointer-events: none;
+    transition: opacity .5s ease;
+    cursor: pointer;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .koniec-overlay.aktywny { opacity: 1; pointer-events: auto; }
+
+  /* PRZYCISKI */
   .sterowanie {
     position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
     display: flex; gap: 14px; z-index: 100;
@@ -143,21 +200,22 @@
   .sterowanie button:active { transform: scale(.93); }
   .sterowanie button:disabled { opacity: .22; cursor: default; }
 
-  /* ---------- LIGHTBOX (POWIĘKSZANIE) ---------- */
+  /* LIGHTBOX */
   .lightbox {
-    position: fixed; inset: 0; background: rgba(0,0,0,.92); z-index: 9999;
+    position: fixed; inset: 0; background: rgba(0,0,0,.94); z-index: 9999;
     display: flex; align-items: center; justify-content: center;
     cursor: zoom-out; opacity: 0; transition: opacity .3s; pointer-events: none;
   }
   .lightbox.active { opacity: 1; pointer-events: auto; }
   .lightbox img {
     max-width: 95vw; max-height: 95vh; object-fit: contain;
-    border: 4px solid #fff; border-radius: 4px; box-shadow: 0 10px 40px rgba(0,0,0,.5);
+    border: 4px solid #fff; border-radius: 4px;
+    box-shadow: 0 10px 40px rgba(0,0,0,.5);
     transform: scale(0.95); transition: transform .3s;
   }
   .lightbox.active img { transform: scale(1); }
 
-  /* ---------- EKRANY ---------- */
+  /* EKRANY */
   .ekran { position: fixed; inset: 0; display: grid; place-items: center; padding: 20px; text-align: center; z-index: 500; }
   .ekran[hidden] { display: none; }
   .ekran-box { max-width: 540px; width: 100%; color: #e9d9a3; }
@@ -198,31 +256,48 @@
   .btn + .btn { margin-left: 10px; }
   .btn:disabled { opacity: .4; cursor: default; }
 
-  /* ---------- MOBILE OPTYMALIZACJA ---------- */
+  /* ================= MOBILE ================= */
+  .czytnik {
+    position: fixed; inset: 0; z-index: 10;
+    display: flex; align-items: center; justify-content: center;
+    padding: 10px 10px 90px;
+  }
+  .strona-mobile {
+    width: min(calc(100vw - 20px), calc(82vh * 0.75), 520px);
+    aspect-ratio: 3 / 4;
+    background: #fdfaf3;
+    border-radius: 8px;
+    box-shadow: 0 10px 40px rgba(0,0,0,.55);
+    position: relative;
+    overflow: hidden;
+  }
+  .strona-mobile .nr-strony {
+    bottom: 3%;
+    right: 6%;
+    left: auto;
+    position: absolute;
+    font-size: .85rem;
+  }
+  .strona-mobile .collage,
+  .strona-mobile .okladka,
+  .strona-mobile .okladka-tyl-wewnatrz,
+  .strona-mobile .pusta {
+    width: 100%; height: 100%;
+  }
+  .strona-mobile .okladka { border-left-width: 8px; }
+
   @media (max-width: 768px) {
-    body {
-      display: block;
-      overflow: auto;
-      padding-top: 10px;
-      padding-bottom: 80px;
-    }
-    .scena {
-      perspective: 1200px;
-    }
-    .ksiazka {
-      width: 98vw;
-      height: 72vh;
-      aspect-ratio: auto;
-    }
-    .foto { padding: 4% 5%; }
-    .foto-para { padding: 4% 5%; gap: 2%; }
-    .foto-cel img { border-width: 4px; }
-    .okladka { border-left-width: 6px; }
-    .nr-strony { bottom: 3%; font-size: 0.8rem; }
-    .nr-strony.prawa { right: 8%; }
-    .nr-strony.lewa { left: 8%; }
-    .sterowanie { bottom: 15px; }
-    .sterowanie button { width: 44px; height: 44px; font-size: 22px; }
+    body { display: block; overflow: hidden; }
+    .scena { display: none; }
+    .nr-strony.prawa, .nr-strony.lewa { display: none; }
+    
+    /* Poprawki kollażu na telefonie */
+    .collage { padding: 6% 4%; gap: 2%; }
+    .collage.n1 { padding: 8%; }
+    .collage.n2 { padding: 8% 4%; }
+    .collage.n3 .p3 { width: 60%; }
+    .polaroid { padding: 4% 4% 10% 4%; box-shadow: 0 4px 10px rgba(0,0,0,.3); }
+    .polaroid .nr-foto { bottom: 2%; font-size: .6rem; }
   }
 </style>
 </head>
@@ -261,15 +336,9 @@
 </div>
 
 <!-- ALBUM -->
-<div id="album" hidden>
-  <div class="scena"><div class="ksiazka" id="ksiazka"></div></div>
-  <div class="sterowanie">
-    <button id="wstecz" aria-label="Wstecz">‹</button>
-    <button id="dalej" aria-label="Dalej">›</button>
-  </div>
-</div>
+<div id="album" hidden></div>
 
-<!-- LIGHTBOX (POWIĘKSZANIE) -->
+<!-- LIGHTBOX -->
 <div id="lightbox" class="lightbox" hidden>
   <img id="img-lightbox" src="" alt="Powiększone zdjęcie">
 </div>
@@ -286,9 +355,6 @@ const KONFIG = {
   folder:     'zdjęcia',
 };
 
-// 'pion' (jedno pod drugim) lub 'poziom' (obok siebie)
-const UKLAD = 'pion';
-
 const TYTUL    = 'Nasza Klasa';
 const PODTYTUL = 'Album wspomnień';
 const ROK      = '2019 / 2027';
@@ -301,6 +367,29 @@ const albumEl        = document.getElementById('album');
 const formHasla      = document.getElementById('formHasla');
 const poleHasla      = document.getElementById('poleHasla');
 const bladHasla      = document.getElementById('bladHasla');
+
+/* Lightbox */
+const lightbox   = document.getElementById('lightbox');
+const imgLightbox = document.getElementById('img-lightbox');
+lightbox.addEventListener('click', () => {
+  lightbox.classList.remove('active');
+  setTimeout(() => { lightbox.hidden = true; }, 300);
+});
+
+function otworzLightbox(src) {
+  imgLightbox.src = src;
+  lightbox.hidden = false;
+  requestAnimationFrame(() => lightbox.classList.add('active'));
+}
+
+function podepnijZdjecia(root) {
+  root.querySelectorAll('.collage img').forEach(img => {
+    img.addEventListener('click', (e) => {
+      e.stopPropagation();
+      otworzLightbox(img.src);
+    });
+  });
+}
 
 if (sessionStorage.getItem('album-ok') === '1') {
   ekranHasla.hidden = true;
@@ -328,7 +417,6 @@ async function start() {
   ekranLadowania.hidden = false;
   const wynik = await pobierzListeZdjec();
   ekranLadowania.hidden = true;
-
   if (wynik.zdjecia && wynik.zdjecia.length > 0) {
     uruchomAlbum(wynik.zdjecia);
   } else {
@@ -336,42 +424,28 @@ async function start() {
   }
 }
 
-/* ---------- KANDYDACI REPO ---------- */
+/* ---------- REPO ---------- */
 function kandydaciRepo() {
-  if (KONFIG.uzytkownik && KONFIG.repo) {
-    return [{ user: KONFIG.uzytkownik, repo: KONFIG.repo }];
-  }
+  if (KONFIG.uzytkownik && KONFIG.repo) return [{ user: KONFIG.uzytkownik, repo: KONFIG.repo }];
   const wynik = [];
   const host = location.hostname;
   if (host.endsWith('.github.io')) {
     const user = host.replace(/\.github\.io$/, '');
     const segs = location.pathname.split('/').filter(Boolean);
-    if (segs.length > 0 && !segs[0].includes('.')) {
-      wynik.push({ user, repo: segs[0] });
-    }
+    if (segs.length > 0 && !segs[0].includes('.')) wynik.push({ user, repo: segs[0] });
     wynik.push({ user, repo: `${user}.github.io` });
-  }
-  if (wynik.length === 0 && KONFIG.uzytkownik) {
-    wynik.push({ user: KONFIG.uzytkownik, repo: null });
   }
   return wynik;
 }
 
-/* ---------- POBIERANIE (GitHub Tree API + relatywne URL-e) ---------- */
 async function pobierzListeZdjec() {
   const kandydaci = kandydaciRepo();
   const debug = [];
-
   if (kandydaci.length === 0) {
-    debug.push('Nie wykryto repo (host nie jest github.io i KONFIG.repo jest puste).');
+    debug.push('Nie wykryto repo.');
     return { zdjecia: null, debug: debug.join('\n') };
   }
-
   for (const k of kandydaci) {
-    if (!k.repo) {
-      debug.push(`Brak nazwy repo. Uzupełnij KONFIG.repo (użytkownik: ${k.user}).`);
-      continue;
-    }
     const res = await pobierzZRepo(k.user, k.repo, debug);
     if (res && res.length > 0) return { zdjecia: res, debug: debug.join('\n') };
   }
@@ -380,75 +454,43 @@ async function pobierzListeZdjec() {
 
 async function pobierzZRepo(user, repo, debug) {
   const api = `https://api.github.com/repos/${user}/${repo}/git/trees/HEAD?recursive=1`;
-  debug.push(`GET ${api}`);
-
   let resp;
   try {
     resp = await fetch(api, { headers: { Accept: 'application/vnd.github+json' } });
-  } catch (e) {
-    debug.push(`  błąd sieci: ${e.message}`);
-    return null;
-  }
-
-  if (!resp.ok) {
-    const uwaga = resp.status === 404 ? ' — repo prywatne lub nie istnieje'
-               : resp.status === 403 ? ' — limit GitHub API'
-               : '';
-    debug.push(`  HTTP ${resp.status}${uwaga}`);
-    return null;
-  }
+  } catch (e) { return null; }
+  if (!resp.ok) return null;
 
   let data;
-  try { data = await resp.json(); } catch (e) { debug.push('  błąd parsowania JSON'); return null; }
-  if (!data.tree) { debug.push('  brak pola "tree"'); return null; }
+  try { data = await resp.json(); } catch (e) { return null; }
+  if (!data.tree) return null;
 
   const wzorFoto = /\.(jpe?g|png|gif|webp|avif|bmp)$/i;
   let wszystkie = data.tree.filter(it => it.type === 'blob' && wzorFoto.test(it.path));
   wszystkie = wszystkie.filter(it => !/(^|\/)\./.test(it.path));
-  debug.push(`  w całym repo: ${wszystkie.length} zdjęć`);
 
   let pliki = wszystkie;
   const folder = (KONFIG.folder || '').replace(/^\/+|\/+$/g, '');
   if (folder && wszystkie.length > 0) {
-    const norm = s => s.toLowerCase()
-      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-      .replace(/ł/g, 'l');
+    const norm = s => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ł/g, 'l');
     const fNorm = norm(folder);
     const wFolderze = wszystkie.filter(it => {
       const segs = it.path.split('/');
       return segs.length > 1 && norm(segs[0]) === fNorm;
     });
-    if (wFolderze.length > 0) {
-      pliki = wFolderze;
-      debug.push(`  w folderze "${folder}": ${wFolderze.length}`);
-    } else {
-      debug.push(`  folder "${folder}" nie pasuje — biorę wszystkie zdjęcia z repo`);
-    }
+    if (wFolderze.length > 0) { pliki = wFolderze; }
   }
 
   pliki.sort((a, b) => a.path.localeCompare(b.path, undefined, { numeric: true }));
-
   const base = new URL('./', location.href).href;
-  const zdjecia = pliki.map(it => base + it.path.split('/').map(encodeURIComponent).join('/'));
-  debug.push(`  OK — ${zdjecia.length} zdjęć`);
-  return zdjecia;
+  return pliki.map(it => base + it.path.split('/').map(encodeURIComponent).join('/'));
 }
 
 /* ---------- EKRAN BŁĘDU ---------- */
 function pokazWybor(debug) {
   ekranLadowania.hidden = true;
   ekranWyboru.hidden = false;
-
-  const opis = document.getElementById('wybor-opis');
   const debugBox = document.getElementById('wybor-debug');
   if (debug) { debugBox.hidden = false; debugBox.textContent = debug; }
-  else { debugBox.hidden = true; }
-
-  opis.innerHTML =
-    'Sprawdź: <br>• repozytorium jest <b>publiczne</b><br>' +
-    '• w <b>Settings → Pages</b> włączony GitHub Pages<br>' +
-    '• folder <code>' + (KONFIG.folder || '(dowolny)') + '</code> istnieje i ma zdjęcia .jpg/.png/.webp<br>' +
-    '• strona otwarta z <code>*.github.io</code>';
 
   const input = document.getElementById('plikFolder');
   document.getElementById('wybierzFolder').onclick  = () => input.click();
@@ -456,84 +498,91 @@ function pokazWybor(debug) {
     Object.keys(localStorage).filter(k => k.startsWith('album')).forEach(k => localStorage.removeItem(k));
     location.reload();
   };
-
   input.onchange = () => {
     const pliki = [...input.files].filter(f => /^image\//.test(f.type));
-    if (pliki.length === 0) { alert('Nie znaleziono zdjęć w wybranym folderze.'); return; }
+    if (pliki.length === 0) { alert('Brak zdjęć.'); return; }
     pliki.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
     ekranWyboru.hidden = true;
     uruchomAlbum(pliki.map(f => URL.createObjectURL(f)));
   };
 }
 
-/* ---------- BUDOWA ALBUMU ---------- */
+/* ============================================================
+   BUDOWA ALBUMU
+   ============================================================ */
 function uruchomAlbum(zdjecia) {
   ekranLadowania.hidden = true;
   ekranWyboru.hidden = true;
   albumEl.hidden = false;
 
-  const strony = [{ typ: 'okladka' }];
-  for (let i = 0; i < zdjecia.length; i += 2) {
-    strony.push({
-      typ:  'foto',
-      a:    zdjecia[i],
-      b:    zdjecia[i + 1] || null,
-      nrA:  i + 1,
-      nrB:  zdjecia[i + 1] ? i + 2 : null,
-    });
+  // Pakujemy po 4 zdjęcia na stronę
+  const pages = [{ typ: 'okladka' }];
+  for (let i = 0; i < zdjecia.length; i += 4) {
+    const foty = [];
+    for (let j = 0; j < 4 && i + j < zdjecia.length; j++) {
+      foty.push({ src: zdjecia[i + j], nr: i + j + 1 });
+    }
+    pages.push({ typ: 'foto', foty });
   }
-  if (strony.length % 2 !== 0) strony.push({ typ: 'pusta' });
+  if (pages.length % 2 !== 0) pages.push({ typ: 'pusta' });
 
-  const arkusze = [];
-  for (let i = 0; i < strony.length; i += 2) {
-    arkusze.push({ przod: strony[i], tyl: strony[i + 1] });
+  // Numeracja stron
+  for (let i = 0; i < pages.length; i++) {
+    if (i === 0 || pages[i].typ === 'pusta') pages[i].pageNum = null;
+    else pages[i].pageNum = i;
   }
+
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+  if (isMobile) initMobile(pages);
+  else initDesktop(pages);
+}
+
+/* ============================================================
+   DESKTOP — książka 3D
+   ============================================================ */
+function initDesktop(pages) {
+  const sheets = [];
+  for (let i = 0; i < pages.length; i += 2) {
+    sheets.push({ przod: pages[i], tyl: pages[i + 1] });
+  }
+
+  albumEl.innerHTML = `
+    <div class="scena">
+      <div class="ksiazka" id="ksiazka"></div>
+    </div>
+    <div class="sterowanie">
+      <button id="wstecz" aria-label="Wstecz">‹</button>
+      <button id="dalej" aria-label="Dalej">›</button>
+    </div>
+  `;
 
   const ksiazka = document.getElementById('ksiazka');
-  ksiazka.innerHTML = '';
   const elementy = [];
 
-  arkusze.forEach((ark, i) => {
+  sheets.forEach((ark, i) => {
     const el = document.createElement('div');
     el.className = 'arkusz';
     el.style.setProperty('--i', i);
-    el.style.setProperty('--total', arkusze.length);
+    el.style.setProperty('--total', sheets.length);
 
-    const nrPrzod = (i * 2) + 1;
-    const nrTyl = (i * 2) + 2;
-
-    const przodHTML = htmlStrony(ark.przod) +
-      (ark.przod.typ !== 'okladka' ? `<span class="nr-strony prawa">${nrPrzod}</span>` : '');
-    const tylHTML = htmlStrony(ark.tyl) +
-      (ark.tyl.typ !== 'okladka' ? `<span class="nr-strony lewa">${nrTyl}</span>` : '');
+    const nrPrzod = ark.przod.pageNum ? `<span class="nr-strony prawa">${ark.przod.pageNum}</span>` : '';
+    const nrTyl   = ark.tyl.pageNum   ? `<span class="nr-strony lewa">${ark.tyl.pageNum}</span>`   : '';
 
     el.innerHTML = `
-      <div class="strona przod">${przodHTML}</div>
-      <div class="strona tyl">${tylHTML}</div>`;
+      <div class="strona przod">${htmlStrony(ark.przod)}${nrPrzod}</div>
+      <div class="strona tyl">${htmlStrony(ark.tyl)}${nrTyl}</div>`;
     ksiazka.appendChild(el);
     elementy.push(el);
   });
 
-  /* --- LIGHTBOX --- */
-  const lightbox = document.getElementById('lightbox');
-  const imgLightbox = document.getElementById('img-lightbox');
+  // Overlay "koniec"
+  const overlay = document.createElement('div');
+  overlay.className = 'koniec-overlay';
+  overlay.innerHTML = htmlStrony({ typ: 'koniec' });
+  ksiazka.appendChild(overlay);
 
-  document.querySelectorAll('.foto img, .foto-cel img').forEach(img => {
-    img.style.cursor = 'zoom-in';
-    img.addEventListener('click', (e) => {
-      e.stopPropagation();
-      imgLightbox.src = img.src;
-      lightbox.hidden = false;
-      requestAnimationFrame(() => lightbox.classList.add('active'));
-    });
-  });
+  podepnijZdjecia(ksiazka);
 
-  lightbox.addEventListener('click', () => {
-    lightbox.classList.remove('active');
-    setTimeout(() => { lightbox.hidden = true; }, 300);
-  });
-
-  /* --- PRZEWRACANIE --- */
   let aktualny = 0;
   const btnWstecz = document.getElementById('wstecz');
   const btnDalej  = document.getElementById('dalej');
@@ -542,6 +591,7 @@ function uruchomAlbum(zdjecia) {
     elementy.forEach((el, i) => el.classList.toggle('obrocony', i < aktualny));
     btnWstecz.disabled = aktualny <= 0;
     btnDalej.disabled  = aktualny >= elementy.length;
+    overlay.classList.toggle('aktywny', aktualny >= elementy.length);
   }
 
   function przewroc(kier) {
@@ -557,14 +607,20 @@ function uruchomAlbum(zdjecia) {
   }
 
   ksiazka.addEventListener('click', (e) => {
+    if (overlay.classList.contains('aktywny') && overlay.contains(e.target)) {
+      aktualny = 0;
+      odswiez();
+      return;
+    }
     const r = ksiazka.getBoundingClientRect();
     przewroc((e.clientX - r.left) > r.width / 2 ? 1 : -1);
   });
+
   btnDalej.onclick  = () => przewroc(1);
   btnWstecz.onclick = () => przewroc(-1);
-  
+
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
+    if (e.key === 'Escape' && lightbox.classList.contains('active')) {
       lightbox.classList.remove('active');
       setTimeout(() => { lightbox.hidden = true; }, 300);
     }
@@ -575,6 +631,78 @@ function uruchomAlbum(zdjecia) {
   odswiez();
 }
 
+/* ============================================================
+   MOBILE — jedna strona na ekran
+   ============================================================ */
+function initMobile(pages) {
+  const mobilePages = pages.filter(p => p.typ !== 'pusta');
+  mobilePages.push({ typ: 'koniec' });
+
+  albumEl.innerHTML = `
+    <div class="czytnik">
+      <div class="strona-mobile" id="stronaMobile"></div>
+    </div>
+    <div class="sterowanie">
+      <button id="wstecz" aria-label="Wstecz">‹</button>
+      <button id="dalej" aria-label="Dalej">›</button>
+    </div>
+  `;
+
+  const stronaEl  = document.getElementById('stronaMobile');
+  const btnWstecz = document.getElementById('wstecz');
+  const btnDalej  = document.getElementById('dalej');
+  let idx = 0;
+
+  function render() {
+    const s = mobilePages[idx];
+    const nr = s.pageNum ? `<span class="nr-strony">${s.pageNum}</span>` : '';
+    stronaEl.innerHTML = htmlStrony(s) + nr;
+    stronaEl.style.cursor = (s.typ === 'koniec') ? 'pointer' : '';
+    podepnijZdjecia(stronaEl);
+
+    btnWstecz.disabled = idx <= 0;
+    btnDalej.disabled  = idx >= mobilePages.length - 1;
+  }
+
+  stronaEl.addEventListener('click', (e) => {
+    const s = mobilePages[idx];
+    if (s.typ === 'koniec') {
+      idx = 0;
+      render();
+    }
+  });
+
+  btnDalej.onclick  = () => { if (idx < mobilePages.length - 1) { idx++; render(); } };
+  btnWstecz.onclick = () => { if (idx > 0) { idx--; render(); } };
+
+  // Swipe
+  let startX = null;
+  stronaEl.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
+  stronaEl.addEventListener('touchend', (e) => {
+    if (startX === null) return;
+    const dx = e.changedTouches[0].clientX - startX;
+    if (Math.abs(dx) > 50) {
+      if (dx < 0 && idx < mobilePages.length - 1) { idx++; render(); }
+      if (dx > 0 && idx > 0) { idx--; render(); }
+    }
+    startX = null;
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+      lightbox.classList.remove('active');
+      setTimeout(() => { lightbox.hidden = true; }, 300);
+    }
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); if (idx < mobilePages.length - 1) { idx++; render(); } }
+    if (e.key === 'ArrowLeft')                   { e.preventDefault(); if (idx > 0) { idx--; render(); } }
+  });
+
+  render();
+}
+
+/* ============================================================
+   HTML strony
+   ============================================================ */
 function htmlStrony(s) {
   if (s.typ === 'okladka') {
     return `<div class="okladka">
@@ -586,17 +714,23 @@ function htmlStrony(s) {
     </div>`;
   }
   if (s.typ === 'foto') {
-    if (!s.b) {
-      return `<div class="foto"><img src="${s.a}" alt="Zdjęcie ${s.nrA}"></div>`;
-    }
-    const klasa = UKLAD === 'poziom' ? 'foto-para poziom' : 'foto-para';
-    return `<div class="${klasa}">
-      <div class="foto-cel">
-        <img src="${s.a}" alt="Zdjęcie ${s.nrA}">
+    const count = s.foty.length;
+    const extraClass = count === 1 ? ' n1' : count === 2 ? ' n2' : count === 3 ? ' n3' : '';
+    
+    const fotyHTML = s.foty.map((f, i) => `
+      <div class="polaroid p${i + 1}">
+        <img src="${f.src}" alt="Zdjęcie ${f.nr}">
+        <span class="nr-foto">${f.nr}</span>
       </div>
-      <div class="foto-cel">
-        <img src="${s.b}" alt="Zdjęcie ${s.nrB}">
-      </div>
+    `).join('');
+
+    return `<div class="collage${extraClass}">${fotyHTML}</div>`;
+  }
+  if (s.typ === 'koniec') {
+    return `<div class="okladka-tyl-wewnatrz">
+      <h1>Koniec</h1>
+      <p class="podtytul">Dziękujemy za obejrzenie</p>
+      <p class="klik">Kliknij, aby otworzyć od nowa</p>
     </div>`;
   }
   return `<div class="pusta"></div>`;
