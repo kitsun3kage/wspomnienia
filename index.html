@@ -77,12 +77,64 @@
   }
   @keyframes puls { 0%,100%{opacity:.25} 50%{opacity:.75} }
 
+  /* ----- JEDNO zdjęcie na stronie (gdy ostatnie jest samotne) ----- */
   .foto { width: 100%; height: 100%; padding: 7% 8%; display: grid; place-items: center; }
   .foto img {
     max-width: 100%; max-height: 100%; object-fit: contain;
     background: #fff; border: 10px solid #fff;
     box-shadow: 0 10px 26px rgba(0,0,0,.28);
   }
+
+  /* ----- DWA zdjęcia na stronie ----- */
+  .foto-para {
+    width: 100%; height: 100%;
+    padding: 5% 6%;
+    display: grid;
+    grid-template-rows: 1fr 1fr;   /* pion: dwa rzędy */
+    gap: 3%;
+  }
+  .foto-para.poziom {
+    grid-template-rows: 1fr;       /* poziom: jedna kolumna szerokości */
+    grid-template-columns: 1fr 1fr;
+    gap: 3% 4%;
+  }
+  .foto-cel {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+    min-width: 0;
+    overflow: hidden;
+  }
+  .foto-cel img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    background: #fff;
+    border: 8px solid #fff;
+    box-shadow: 0 8px 20px rgba(0,0,0,.22);
+    display: block;
+  }
+
+  /* numerek w rogu każdej fotki (2-foto układ) */
+  .foto-cel .nr {
+    position: absolute;
+    bottom: 6px;
+    right: 10px;
+    left: auto;
+    top: auto;
+    width: auto;
+    text-align: right;
+    font-size: clamp(.45rem, 1vw, .68rem);
+    letter-spacing: .2em;
+    color: #9a8f78;
+    background: rgba(253,250,243,.85);
+    padding: 2px 8px;
+    border-radius: 3px;
+  }
+
+  /* numerek pod samotnym zdjęciem (1-foto układ) */
   .nr {
     position: absolute; bottom: 3.5%; left: 0; right: 0; text-align: center;
     font-size: clamp(.5rem, 1.2vw, .8rem);
@@ -198,9 +250,13 @@ const HASLO = 'klasa8a';
 
 const KONFIG = {
   uzytkownik: 'kitsun3kage',
-  repo:       'wspomnienia',          // puste = auto z URL. Jeśli nie działa: wpisz nazwę repo
-  folder:     'zdjęcia',   // nazwa folderu ze zdjęciami (dopasowanie elastyczne)
+  repo:       'wspomnienia',
+  folder:     'zdjęcia',
 };
+
+// Liczba zdjęć na jednej kartce: 2
+// UKLAD: 'pion' (jedno pod drugim) lub 'poziom' (obok siebie)
+const UKLAD = 'pion';
 
 const TYTUL    = 'Nasza Klasa';
 const PODTYTUL = 'Album wspomnień';
@@ -320,7 +376,6 @@ async function pobierzZRepo(user, repo, debug) {
   wszystkie = wszystkie.filter(it => !/(^|\/)\./.test(it.path));
   debug.push(`  w całym repo: ${wszystkie.length} zdjęć`);
 
-  // elastyczne dopasowanie folderu (ignoruje polskie znaki i wielkość liter)
   let pliki = wszystkie;
   const folder = (KONFIG.folder || '').replace(/^\/+|\/+$/g, '');
   if (folder && wszystkie.length > 0) {
@@ -342,7 +397,6 @@ async function pobierzZRepo(user, repo, debug) {
 
   pliki.sort((a, b) => a.path.localeCompare(b.path, undefined, { numeric: true }));
 
-  // URL-e relatywne do index.html (GitHub Pages sam serwuje pliki)
   const base = new URL('./', location.href).href;
   const zdjecia = pliki.map(it => base + it.path.split('/').map(encodeURIComponent).join('/'));
   debug.push(`  OK — ${zdjecia.length} zdjęć`);
@@ -387,8 +441,17 @@ function uruchomAlbum(zdjecia) {
   ekranWyboru.hidden = true;
   albumEl.hidden = false;
 
+  // Grupowanie zdjęć po 2 na stronę
   const strony = [{ typ: 'okladka' }];
-  zdjecia.forEach((src, i) => strony.push({ typ: 'foto', src, nr: i + 1 }));
+  for (let i = 0; i < zdjecia.length; i += 2) {
+    strony.push({
+      typ:  'foto',
+      a:    zdjecia[i],
+      b:    zdjecia[i + 1] || null,
+      nrA:  i + 1,
+      nrB:  zdjecia[i + 1] ? i + 2 : null,
+    });
+  }
   if (strony.length % 2 !== 0) strony.push({ typ: 'pusta' });
 
   const arkusze = [];
@@ -459,8 +522,23 @@ function htmlStrony(s) {
     </div>`;
   }
   if (s.typ === 'foto') {
-    return `<div class="foto"><img src="${s.src}" alt="Zdjęcie ${s.nr}"></div>
-            <span class="nr">${s.nr}</span>`;
+    // Tylko jedno zdjęcie w parze → wyśrodkowane na całą stronę
+    if (!s.b) {
+      return `<div class="foto"><img src="${s.a}" alt="Zdjęcie ${s.nrA}"></div>
+              <span class="nr">${s.nrA}</span>`;
+    }
+    // Dwa zdjęcia → siatka
+    const klasa = UKLAD === 'poziom' ? 'foto-para poziom' : 'foto-para';
+    return `<div class="${klasa}">
+      <div class="foto-cel">
+        <img src="${s.a}" alt="Zdjęcie ${s.nrA}">
+        <span class="nr">${s.nrA}</span>
+      </div>
+      <div class="foto-cel">
+        <img src="${s.b}" alt="Zdjęcie ${s.nrB}">
+        <span class="nr">${s.nrB}</span>
+      </div>
+    </div>`;
   }
   return `<div class="pusta"></div>`;
 }
